@@ -4,15 +4,31 @@ from datetime import datetime
 import pandas as pd
 import copy
 
+product_history_url = "https://cs-price-tracker-jobs.azurewebsites.net/api/ProductHistory"
+product_description_url = "https://cs-price-tracker-jobs.azurewebsites.net/api/ProductDetails"
 
 
 
 
 params = st.experimental_get_query_params()
 if "product_id" in params:
-    st.title("PriceTracker")
+    st.title("Price Tracker")
     product_id = params["product_id"][0]
-    response = requests.get(f"https://cs-price-tracker-jobs.azurewebsites.net/api/ProductHistory?productid={product_id}")
+    response_product_description = requests.get(f"{product_description_url}?productid={product_id}")
+    if response_product_description.status_code==200:
+        product_description = response_product_description.json()
+        st.header(product_description["title"])
+        description_col, image_col = st.columns([0.7,0.3])
+        with description_col:
+            st.caption(product_description["description"])
+        with image_col:
+            st.image(product_description["image"])
+
+     
+
+
+    
+    response = requests.get(f"{product_history_url}?productid={product_id}")
     records = response.json()
     price_history_records = []
     for record in records:
